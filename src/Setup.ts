@@ -47,6 +47,15 @@ export class Setup {
         // attach resize handler
         window.addEventListener('resize', () => { this.handleWindowResize() });
 
+
+        this.smoothOrbCtrls();
+
+    }
+
+    smoothOrbCtrls() {
+        this.orbCtrls.enableDamping = true;
+        this.orbCtrls.dampingFactor = 0.01;
+        this.orbCtrls.rotateSpeed = 0.5;
     }
 
     setEnvMap(url: string) {
