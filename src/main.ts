@@ -1,44 +1,53 @@
 import './style.css'
-import { Setup } from './Setup';
 import * as THREE from 'three';
+
+import Setup from './Setup.ts';
+import GenColor from './lib/GenColor.ts';
+import { sphereGeo } from './lib/geometries.ts';
+
+import perlinNoise from './shaders/noise.glsl?raw';
+import { fragmentGlobal, fragmentMain, vertexGlobal, vertexMain } from './shaders/edge/edgeShader.glsl';
+import { setupShaderSnippets, setupUniforms } from './lib/shaderHelper.ts';
+
+import { dissolveUniformData } from './lib/Uniforms.ts';
+import { setupTweaks } from './lib/tweaks.ts';
 
 const cnvs = document.getElementById('c') as HTMLCanvasElement;
 if (!cnvs) throw new Error("Canvas not found");
 
-
-const world = new Setup(cnvs);
-world.cam.position.set(0, 0, 5);
+export const world = new Setup(cnvs);
+world.cam.position.set(0, 0, 8);
 world.setEnvMap("/night.hdr");
 
-const PARAMS = {
-    box_x: 0,
-    box_y: 0,
-    box_z: 0,
+export const meshColor = new GenColor('#2c2c2c');
+
+export const phyMat = new THREE.MeshPhysicalMaterial();
+phyMat.color = meshColor.rgb;
+phyMat.roughness = 0.0;
+phyMat.metalness = 2.0;
+phyMat.transparent = true;
+phyMat.side = THREE.DoubleSide;
+phyMat.onBeforeCompile = (shader) => { // handle dissolve effect with edges
+    setupUniforms(shader, dissolveUniformData); // just import and pass the uniform data here , will set all the uniforms 
+    setupShaderSnippets(shader, vertexGlobal, vertexMain, perlinNoise + fragmentGlobal, fragmentMain);
 }
-world.pane.addBinding(PARAMS, "box_x", { min: -10, max: 10, step: 0.01 });
 
+export let genMesh: THREE.Object3D;
+genMesh = new THREE.Mesh(sphereGeo, phyMat);
 
-const boxGeo = new THREE.BoxGeometry(2, 2, 2);
-const normalMat = new THREE.MeshNormalMaterial();
-const box = new THREE.Mesh(boxGeo, normalMat);
-
-
-world.scene.add(box);
-
-
-function updateBox() {
-
-    box.position.setX(PARAMS.box_x);
-
-    box.rotation.x += 0.01;
-    box.rotation.y += 0.01;
+export function updateGenMeshGeo(geo: THREE.BufferGeometry) {
+    genMesh = new THREE.Mesh(geo, phyMat);
 }
+
+setupTweaks();
+
+
+world.scene.add(genMesh);
+
 
 function animate() {
     world.stats.update();
     world.orbCtrls.update();
-
-    updateBox();
 
     world.re.render(world.scene, world.cam);
     requestAnimationFrame(animate);

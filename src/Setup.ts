@@ -4,7 +4,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import { Pane } from 'tweakpane';
 
-export class Setup {
+export default class Setup {
 
     static w = window.innerWidth;
     static h = window.innerHeight;
