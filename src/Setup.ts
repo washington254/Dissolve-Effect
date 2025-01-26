@@ -32,6 +32,7 @@ export default class Setup {
         // create and setup the scene
         this.cnvs = cnvs;
         this.re = new THREE.WebGLRenderer({ canvas: cnvs, antialias: true });
+        this.re.outputColorSpace = THREE.SRGBColorSpace;
         this.re.setSize(Setup.w, Setup.h);
         this.cam = new THREE.PerspectiveCamera(75, aspect, Setup.near, Setup.far);
         this.scene = new THREE.Scene();

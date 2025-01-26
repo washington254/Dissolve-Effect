@@ -8,7 +8,8 @@ export const vertexMain = `
 `;
 export const fragmentGlobal = `
     varying vec3 vPos;
-    uniform vec3 uEdgeColor;
+    uniform vec3 uEdgeColor1;
+    uniform vec3 uEdgeColor2;
     uniform float uFreq;
     uniform float uAmp;
     uniform float uProgress;
@@ -21,7 +22,7 @@ export const fragmentMain = `
 
     float edgeWidth = uProgress + uEdge;
     if(noise > uProgress && noise < edgeWidth){
-        gl_FragColor = vec4(uEdgeColor,noise);
+        gl_FragColor = vec4(uEdgeColor1,noise);
     }
     gl_FragColor = vec4(gl_FragColor.xyz,1.0);
 `;

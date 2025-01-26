@@ -1,22 +1,26 @@
 // all uniform related data stay here 
 import GenColor from "./GenColor";
-export const edgeColor = new GenColor('#0099ff');
+export const edgeColor1 = new GenColor('#66bdff');
+export const edgeColor2 = new GenColor('#0733ff');
 
 export const dissolveUniformData = {
-    uEdgeColor: {
-        value: edgeColor.vec3,
+    uEdgeColor1: {
+        value: edgeColor1.vec3,
+    },
+    uEdgeColor2: {
+        value: edgeColor2.vec3,
     },
     uFreq: {
-        value: 0.6,
+        value: 0.45,
     },
     uAmp: {
-        value: 15.0
+        value: 20.0
     },
     uProgress: {
-        value: 0.0
+        value: -7.0
     },
     uEdge: {
-        value: 0.5
+        value: 0.8
     }
 
 }

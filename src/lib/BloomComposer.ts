@@ -21,7 +21,7 @@ export function setupBloomComposer(world: Setup): { composer1: EffectComposer, c
     effectComposer2 = new EffectComposer(world.re);
     renderPass = new RenderPass(world.scene, world.cam);
 
-    bloomPass = new UnrealBloomPass(res, 0.5, 0.2, 0.0);
+    bloomPass = new UnrealBloomPass(res, 0.7, 0.2, 0.0);
     outPass = new OutputPass();
 
 
