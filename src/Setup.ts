@@ -19,11 +19,13 @@ export default class Setup {
     scene: THREE.Scene;
     stats: Stats;
     orbCtrls: OrbitControls;
+    texture!: THREE.DataTexture;
     rgbeLoader: RGBELoader;
     clock: THREE.Clock;
+    resizeHandler: () => void;
     pane: Pane;
 
-    constructor(cnvs: HTMLCanvasElement) {
+    constructor(cnvs: HTMLCanvasElement, resizeHandler: () => void) {
 
         let aspect = Setup.w / Setup.h;
 
@@ -38,6 +40,7 @@ export default class Setup {
         this.orbCtrls = new OrbitControls(this.cam, this.cnvs);
         this.rgbeLoader = new RGBELoader();
         this.pane = new Pane();
+        this.resizeHandler = resizeHandler;
 
 
         document.body.appendChild(this.stats.dom);
@@ -63,11 +66,15 @@ export default class Setup {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             this.scene.background = texture;
             this.scene.environment = texture;
+            this.texture = texture;
         }
         )
     }
 
 
+    updateTexture() {
+        this.scene.environment = this.texture;
+    }
 
     private updateCanvasSize(w: number, h: number) {
         this.cnvs.style.width = w + "px";
@@ -84,6 +91,7 @@ export default class Setup {
         const w = window.innerWidth;
         const h = window.innerHeight;
 
+        this.resizeHandler();
         this.updateCanvasSize(w, h);
         this.updateCameraAndRenderer(w, h);
     }
