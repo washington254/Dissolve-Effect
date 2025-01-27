@@ -66,7 +66,7 @@ export function updateParticleSystem(geo: THREE.BufferGeometry) {
 
 
 
-export const particleColor = new GenColor('#6ec7ff');
+export const particleColor = new GenColor('#4d9bff');
 
 export const particleUniforms = {
     uPixelDensity: {
@@ -103,15 +103,14 @@ const blackColor = new THREE.Color(0x000000);
 
 const planeGeo = new THREE.PlaneGeometry(20, 20);
 planeGeo.rotateX(Math.PI * -0.5);
-const planeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+const planeMat = new THREE.MeshStandardMaterial({ color: 0x2b2b2b });
 planeMat.side = THREE.DoubleSide;
-planeMat.roughness = 0.0;
+planeMat.roughness = 1.0;
+planeMat.metalness = 0.6;
 planeMat.emissiveIntensity = 1.0;
 const plane = new THREE.Mesh(planeGeo, planeMat);
 plane.position.set(0, -5, 0);
 world.scene.add(plane);
-
-const whitecolor = new THREE.Color(0xffffff);
 
 
 let autoProgress = false;
@@ -138,10 +137,9 @@ function animate() {
     //world.re.render(world.scene, world.cam);
 
     world.scene.background = blackColor;
-    plane.material.color = blackColor;
     composers.composer1.render();
+
     world.scene.background = world.texture;
-    plane.material.color = whitecolor;
     composers.composer2.render();
     requestAnimationFrame(animate);
 }

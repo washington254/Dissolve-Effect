@@ -1,6 +1,6 @@
 // all uniform related data stay here 
 import GenColor from "./GenColor";
-export const edgeColor1 = new GenColor('#66bdff');
+export const edgeColor1 = new GenColor('#4d9bff');
 export const edgeColor2 = new GenColor('#0733ff');
 
 export const dissolveUniformData = {
