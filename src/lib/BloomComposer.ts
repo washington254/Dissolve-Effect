@@ -5,7 +5,8 @@ import { RenderPass } from 'three/examples/jsm/Addons.js';
 import { OutputPass } from 'three/examples/jsm/Addons.js';
 import { ShaderPass } from 'three/examples/jsm/Addons.js';
 
-let res = new THREE.Vector2(window.innerWidth, window.innerHeight);
+const cnvs = document.getElementById('c') as HTMLCanvasElement;
+let res = new THREE.Vector2(cnvs.clientWidth, cnvs.clientHeight);
 
 let effectComposer: EffectComposer;
 let effectComposer2: EffectComposer;
@@ -21,7 +22,7 @@ export function setupBloomComposer(world: Setup): { composer1: EffectComposer, c
     effectComposer2 = new EffectComposer(world.re);
     renderPass = new RenderPass(world.scene, world.cam);
 
-    bloomPass = new UnrealBloomPass(res, 0.8, 0.2, 0.0);
+    bloomPass = new UnrealBloomPass(res, 0.4, 0.2, 0.1);
     outPass = new OutputPass();
 
 
@@ -75,8 +76,8 @@ export function setupBloomComposer(world: Setup): { composer1: EffectComposer, c
 }
 
 export function resizeBloomComposer() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const w = cnvs.clientWidth;
+    const h = cnvs.clientHeight;
 
     renderPass.setSize(w, h);
     bloomPass.setSize(w, h);

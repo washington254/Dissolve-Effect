@@ -5,8 +5,8 @@ uniform float uEdge;
 varying float vNoise;
 varying mat2 rotMat;
 void main() {
-    if (vNoise < uProgress) discard;
-    if (vNoise > uProgress + uEdge) discard;
+    if (vNoise < uProgress - 1.0) discard;
+    if (vNoise > uProgress + uEdge + 1.0) discard;
     vec2 coord = gl_PointCoord - 0.5;
     coord = coord * rotMat;
     coord = coord + 0.5;

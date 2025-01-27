@@ -100,7 +100,7 @@ void main() {
     float noise = cnoise(pos * uFreq) * uAmp;
     vNoise = noise;
 
-    if (noise > uProgress && noise < uProgress + uEdge) {
+    if (noise > uProgress - 1.0 && noise < uProgress + uEdge + 1.0) {
         pos = aPosition;
     }
 

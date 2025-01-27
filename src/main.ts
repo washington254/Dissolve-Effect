@@ -29,12 +29,17 @@ const cnvs = document.getElementById('c') as HTMLCanvasElement;
 if (!cnvs) throw new Error("Canvas not found");
 
 export const world = new Setup(cnvs, resizeBloomComposer);
-world.cam.position.set(0, 0, 8);
-world.setEnvMap("/night.hdr");
+if (world.isMobileDevice()) {
+    world.cam.position.set(4, 5, 20);
+    world.setEnvMap("/night1k.hdr");
+} else {
+    world.cam.position.set(0, 2, 12);
+    world.setEnvMap("/night.hdr");
+}
 
 const composers = setupBloomComposer(world);
 
-export const meshColor = new GenColor('#363636');
+export const meshColor = new GenColor('#636363');
 
 export const phyMat = new THREE.MeshStandardMaterial();
 phyMat.color = meshColor.rgb;
@@ -73,7 +78,7 @@ export const particleUniforms = {
         value: world.re.getPixelRatio(),
     },
     uBaseSize: {
-        value: 80.0,
+        value: world.isMobileDevice() ? 25.0 : 40.0,
     },
     uFreq: dissolveUniformData.uFreq,
     uAmp: dissolveUniformData.uAmp,
@@ -119,20 +124,56 @@ export function setAutoProgress(value: boolean) {
     autoProgress = value;
 }
 
+const scale = 0.7;
+
+function resizeRendererToDisplaySize() {
+    let width = 0;
+    let height = 0;
+    if (world.isMobileDevice()) {
+        width = cnvs.clientWidth * scale;
+        height = cnvs.clientHeight * scale;
+    } else {
+        width = cnvs.clientWidth;
+        height = cnvs.clientHeight;
+
+    }
+
+    let needResize = false;
+    if (world.isMobileDevice()) {
+        needResize = cnvs.width !== width * scale || cnvs.height !== height * scale;
+    } else {
+        needResize = cnvs.width !== width || cnvs.height !== height;
+    }
+    if (needResize) {
+        world.re.setSize(width, height, false);
+    }
+    return needResize;
+}
+
 function animate() {
     world.stats.update();
     world.orbCtrls.update();
 
+
+    if (resizeRendererToDisplaySize()) {
+        const canvas = world.re.domElement;
+        world.cam.aspect = canvas.clientWidth / canvas.clientHeight;
+        world.cam.updateProjectionMatrix();
+    }
+
     particleSystem.updateAttributesValues();
 
+    const time = world.clock.getElapsedTime();
 
     if (autoProgress) {
-        dissolveUniformData.uProgress.value = Math.sin(world.clock.getElapsedTime() * 0.2) * 10.0;
+        dissolveUniformData.uProgress.value = Math.sin(time * 0.2) * 10.0;
         TWEAKS.progress = dissolveUniformData.uProgress.value;
         progressBinding.refresh();
     }
 
 
+    genMesh.position.y += Math.sin(time * 1.0) * 0.01;
+    particleMesh.position.y += Math.sin(time * 1.0) * 0.01;
 
     //world.re.render(world.scene, world.cam);
 

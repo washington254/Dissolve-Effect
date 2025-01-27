@@ -6,8 +6,6 @@ import { Pane } from 'tweakpane';
 
 export default class Setup {
 
-    static w = window.innerWidth;
-    static h = window.innerHeight;
     static fov = 75;
     static near = 0.01;
     static far = 1000;
@@ -27,19 +25,27 @@ export default class Setup {
 
     constructor(cnvs: HTMLCanvasElement, resizeHandler: () => void) {
 
-        let aspect = Setup.w / Setup.h;
+        let w = cnvs.clientWidth;
+        let h = cnvs.clientHeight;
+        let aspect = w / h;
 
         // create and setup the scene
         this.cnvs = cnvs;
         this.re = new THREE.WebGLRenderer({ canvas: cnvs, antialias: true });
         this.re.toneMapping = THREE.CineonToneMapping;
         this.re.outputColorSpace = THREE.SRGBColorSpace;
-        this.re.setSize(Setup.w, Setup.h);
+        if (this.isMobileDevice()) {
+            this.re.setSize(cnvs.clientWidth * 0.7, cnvs.clientHeight * 0.7, false);
+        } else {
+            this.re.setSize(cnvs.clientWidth, cnvs.clientHeight, false);
+        }
+        this.re.setPixelRatio(window.devicePixelRatio);
         this.cam = new THREE.PerspectiveCamera(75, aspect, Setup.near, Setup.far);
         this.scene = new THREE.Scene();
         this.clock = new THREE.Clock();
         this.stats = new Stats();
         this.orbCtrls = new OrbitControls(this.cam, this.cnvs);
+        this.orbCtrls.enableZoom = false;
         this.rgbeLoader = new RGBELoader();
         this.pane = new Pane();
         this.resizeHandler = resizeHandler;
@@ -51,16 +57,17 @@ export default class Setup {
 
         // attach resize handler
         window.addEventListener('resize', () => { this.handleWindowResize() });
+        window.addEventListener('orientationchange', () => {
+            location.reload();
+        });
 
 
-        this.smoothOrbCtrls();
 
     }
 
-    smoothOrbCtrls() {
-        this.orbCtrls.enableDamping = true;
-        this.orbCtrls.dampingFactor = 0.01;
-        this.orbCtrls.rotateSpeed = 0.5;
+
+    isMobileDevice() {
+        return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
 
     setEnvMap(url: string) {
@@ -78,25 +85,12 @@ export default class Setup {
         this.scene.environment = this.texture;
     }
 
-    private updateCanvasSize(w: number, h: number) {
-        this.cnvs.style.width = w + "px";
-        this.cnvs.style.height = h + "px";
-    }
-
-    private updateCameraAndRenderer(w: number, h: number) {
-        this.cam.aspect = w / h;
-        this.re.setSize(w, h);
-        this.cam.updateProjectionMatrix();
-    }
-
     private handleWindowResize() {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
 
         this.resizeHandler();
-        this.updateCanvasSize(w, h);
-        this.updateCameraAndRenderer(w, h);
     }
 
 
 }
+
+
