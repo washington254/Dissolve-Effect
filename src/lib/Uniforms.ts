@@ -14,7 +14,7 @@ export const dissolveUniformData = {
         value: 0.45,
     },
     uAmp: {
-        value: 20.0
+        value: 16.0
     },
     uProgress: {
         value: -7.0

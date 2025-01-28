@@ -45,7 +45,7 @@ export default class Setup {
         this.clock = new THREE.Clock();
         this.stats = new Stats();
         this.orbCtrls = new OrbitControls(this.cam, this.cnvs);
-        this.orbCtrls.enableZoom = false;
+        //this.orbCtrls.enableZoom = false;
         this.rgbeLoader = new RGBELoader();
         this.pane = new Pane();
         this.resizeHandler = resizeHandler;

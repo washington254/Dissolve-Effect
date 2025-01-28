@@ -5,7 +5,9 @@ import * as THREE from 'three';
 import Setup from './Setup.ts';
 import GenColor from './lib/GenColor.ts';
 import ParticleSystem from './lib/ParticleSystem.ts';
-import { torusGeo } from './lib/geometries.ts';
+import { teapotGeo } from './lib/geometries.ts';
+import { meshArr } from './lib/tweaks.ts';
+import { meshBlade } from './lib/tweaks.ts';
 
 import { setupBloomComposer, resizeBloomComposer } from './lib/BloomComposer.ts';
 
@@ -16,7 +18,7 @@ import particleFragment from './shaders/particle/fragment.glsl?raw';
 import { setupShaderSnippets, setupUniforms } from './lib/shaderHelper.ts';
 
 import { dissolveUniformData } from './lib/Uniforms.ts';
-import { progressBinding, setupTweaks, TWEAKS } from './lib/tweaks.ts';
+import { handleMeshChange, progressBinding, setupTweaks, TWEAKS } from './lib/tweaks.ts';
 
 
 
@@ -33,21 +35,21 @@ if (world.isMobileDevice()) {
     world.cam.position.set(4, 5, 20);
     world.setEnvMap("/night1k.hdr");
 } else {
-    world.cam.position.set(0, 2, 12);
-    world.setEnvMap("/night.hdr");
+    world.cam.position.set(5, 7, 12);
+    world.setEnvMap("/night2k.hdr");
 }
 
 const composers = setupBloomComposer(world);
 
 export const meshColor = new GenColor('#636363');
 
-export const phyMat = new THREE.MeshStandardMaterial();
+export const phyMat = new THREE.MeshPhysicalMaterial();
 phyMat.color = meshColor.rgb;
+phyMat.iridescence = 0.2;
 phyMat.roughness = 0.0;
 phyMat.metalness = 2.0;
-phyMat.transparent = true;
 phyMat.side = THREE.DoubleSide;
-//phyMat.sheen = 1.0;
+phyMat.sheen = 1.0;
 phyMat.onBeforeCompile = (shader) => { // handle dissolve effect with edges
     setupUniforms(shader, dissolveUniformData); // just import and pass the uniform data here , will set all the uniforms 
     setupShaderSnippets(shader, vertexGlobal, vertexMain, perlinNoise + fragmentGlobal, fragmentMain);
@@ -57,7 +59,7 @@ export let genMesh: THREE.Object3D;
 export let particleMesh: THREE.Points;
 export let particleSystem: ParticleSystem;
 
-genMesh = new THREE.Mesh(torusGeo, phyMat);
+genMesh = new THREE.Mesh(teapotGeo, phyMat);
 
 export function updateGenMeshGeo(geo: THREE.BufferGeometry) {
     genMesh = new THREE.Mesh(geo, phyMat);
@@ -97,8 +99,8 @@ pointsMat.blending = THREE.AdditiveBlending;
 pointsMat.uniforms = particleUniforms;
 pointsMat.vertexShader = particleVertex;
 pointsMat.fragmentShader = particleFragment;
-particleMesh = new THREE.Points(torusGeo, pointsMat);
-particleSystem = new ParticleSystem(torusGeo);
+particleMesh = new THREE.Points(teapotGeo, pointsMat);
+particleSystem = new ParticleSystem(teapotGeo);
 
 
 world.scene.add(particleMesh);
@@ -149,6 +151,15 @@ function resizeRendererToDisplaySize() {
     }
     return needResize;
 }
+const planeColor = new THREE.Color(0x1b1b1b);
+
+let currentMesh = 1;
+let lock = false;
+let direction = 1;
+
+
+
+
 
 function animate() {
     world.stats.update();
@@ -166,9 +177,31 @@ function animate() {
     const time = world.clock.getElapsedTime();
 
     if (autoProgress) {
-        dissolveUniformData.uProgress.value = Math.sin(time * 0.2) * 10.0;
+        if (direction == 1) {
+            dissolveUniformData.uProgress.value += 0.1 * TWEAKS.speed;// Math.sin(time * TWEAKS.speed) * 15.0;
+        } else {
+            dissolveUniformData.uProgress.value -= 0.1 * TWEAKS.speed;// Math.sin(time * TWEAKS.speed) * 15.0;
+        }
+        if (dissolveUniformData.uProgress.value >= 14.00 || dissolveUniformData.uProgress.value <= -14.0) direction *= -1;
+        if (dissolveUniformData.uProgress.value >= 14 && direction == 1) direction = -1;
+        if (dissolveUniformData.uProgress.value <= -14 && direction == -1) direction = 1;
+
         TWEAKS.progress = dissolveUniformData.uProgress.value;
+        if (TWEAKS.progress >= 14.0 && lock == false) {
+            const index = currentMesh % (meshArr.length);
+            const geo = meshArr[index];
+            handleMeshChange(geo);
+            currentMesh++;
+            lock = true;
+            //@ts-ignore
+            meshBlade.value = meshArr[index];
+        }
+
+        if (TWEAKS.progress < 0) {
+            lock = false;
+        }
         progressBinding.refresh();
+
     }
 
 
@@ -178,9 +211,12 @@ function animate() {
     //world.re.render(world.scene, world.cam);
 
     world.scene.background = blackColor;
+    plane.material.color = blackColor;
     composers.composer1.render();
 
+    plane.material.color = planeColor;
     world.scene.background = world.texture;
+
     composers.composer2.render();
     requestAnimationFrame(animate);
 }
