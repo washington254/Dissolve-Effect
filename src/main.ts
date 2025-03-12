@@ -117,7 +117,7 @@ planeMat.metalness = 0.6;
 planeMat.emissiveIntensity = 1.0;
 const plane = new THREE.Mesh(planeGeo, planeMat);
 plane.position.set(0, -5, 0);
-world.scene.add(plane);
+// world.scene.add(plane);
 
 
 let autoProgress = false;
@@ -215,7 +215,7 @@ function animate() {
     composers.composer1.render();
 
     plane.material.color = planeColor;
-    world.scene.background = world.texture;
+
 
     composers.composer2.render();
     requestAnimationFrame(animate);
